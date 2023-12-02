@@ -1,0 +1,35 @@
+# Configure the stages the pipeline will go through
+stages:
+  - build
+  - deploy
+
+# Define the job that will build the React app
+build:
+  stage: build
+  image: node:latest
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - node_modules/ # cache the node_modules directory
+  script:
+    - npm install --force
+    - npm run lint -- --fix # Run ESLint with auto-fix
+    - npm run build
+  artifacts:
+    paths:
+      - build
+
+# Define the job that will transfer the build files to the server via SSH
+deploy:
+  stage: deploy
+  image: ubuntu
+  before_script:
+    - apt-get update && apt-get install -y sshpass
+  script:
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no -p $PORT $USERNAME@$SERVER "mkdir -p /home/u527209061/domains/acesolution.com.br/public_html"
+    - scp -r -P $PORT -i ~/.ssh/id_rsa build/* $USERNAME@$SERVER:/home/u527209061/domains/acesolution.com.br/public_html
+  environment:
+    name: production

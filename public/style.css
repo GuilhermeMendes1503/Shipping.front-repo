@@ -1,0 +1,19 @@
+body{
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+::-moz-selection {
+    background-color: transparent;
+    color: none;
+}
+
+::selection {
+    background-color: transparent;
+    color: none;
+}
+
+*{
+    -webkit-tap-highlight-color: transparent;
+
+}
